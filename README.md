@@ -57,8 +57,6 @@ Generates `data/test_results.json` with pass/fail results.
 * LLM is guarded against prompt injection and oversized inputs.
 * Telemetry logged in `telemetry.log`.
 
-````
-
 ---
 
 ## ** Optional fixes for test failures**
@@ -68,10 +66,9 @@ Generates `data/test_results.json` with pass/fail results.
   - Multi-category bullets not appearing in both sections.
 
 **Quick fix:** Make your test patterns regex-friendly or allow partial match:
-```json
+```
 "expected_patterns": ["accessibility", "Version: v", "Features"]
-````
 
 → will match even if LLM says “Improved accessibility for users…”.
-
+```
 
