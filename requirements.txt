@@ -1,5 +1,4 @@
-flask
-faiss-cpu
-sentence-transformers
+Flask
 python-dotenv
 requests
+scikit-learn

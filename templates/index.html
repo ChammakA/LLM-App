@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Patch Note Writer</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            background: #f0f2f5;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #1a73e8;
+        }
+        textarea {
+            width: 100%;
+            height: 180px;
+            padding: 0.5rem;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            resize: vertical;
+            font-size: 1rem;
+        }
+        button {
+            margin-top: 0.5rem;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            background-color: #1a73e8;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: #155ab6;
+        }
+        #loading {
+            margin-top: 1rem;
+            font-weight: bold;
+        }
+        pre {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            margin-top: 1rem;
+        }
+        </style>
+
+</head>
+<body>
+    <h1>Patch Note Writer</h1>
+    <form id="patchForm">
+        <textarea name="changes" id="changes"></textarea><br>
+        <button type="submit">Generate Patch Notes</button>
+    </form>
+    <div id="loading" style="display:none;">
+        <span class="spinner"></span> Generating...
+    </div>
+    <style>
+    .spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #1a73e8;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: inline-block;
+    animation: spin 1s linear infinite;
+    margin-right: 5px;
+    vertical-align: middle;
+    }
+    @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+    }
+    </style>
+    <pre id="output"></pre>
+    <button id="copyBtn" style="display:none;">Copy Patch Notes</button>
+
+
+    <script>
+    const form = document.getElementById("patchForm");
+    form.addEventListener("submit", async e => {
+        e.preventDefault();
+        document.getElementById("loading").style.display = "block";
+        const formData = new FormData(form);
+        const resp = await fetch("/generate", { method: "POST", body: formData });
+        const data = await resp.json();
+        document.getElementById("loading").style.display = "none";
+        if (data.error) {
+            document.getElementById("output").textContent = "Error: " + data.error;
+        } else {
+            document.getElementById("output").textContent = `${data.patch_notes}`;
+            copyBtn.style.display = "inline-block";
+        }
+    });
+
+    // Keyboard shortcut: Ctrl+Enter
+    document.getElementById("changes").addEventListener("keydown", e => {
+        if (e.ctrlKey && e.key === "Enter") form.dispatchEvent(new Event("submit"));
+    });
+    
+    const copyBtn = document.getElementById("copyBtn");
+    copyBtn.addEventListener("click", () => {
+        const outputText = document.getElementById("output").textContent;
+        navigator.clipboard.writeText(outputText);
+        alert("Copied to clipboard!");
+    });
+
+    </script>
+    
+
+
+</body>
+</html>

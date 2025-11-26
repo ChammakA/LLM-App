@@ -1,75 +1,163 @@
 import os
-import time
 import json
-import subprocess
-from flask import Flask, request, jsonify
+import time
+import requests
+from flask import Flask, render_template, request, jsonify
 from dotenv import load_dotenv
-from rag_utils import load_notes, build_index, search_index
+from utils import check_input, log_telemetry, get_version_tag, estimate_tokens
+from rag import get_relevant_notes
 
 load_dotenv()
-MODEL_NAME = os.getenv("MODEL_NAME", "mistral")
+OLLAMA_API_URL = os.getenv("OLLAMA_API_URL")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL")
 
 app = Flask(__name__)
 
-print("Loading and embedding notes...")
-docs, sources = load_notes()
-index, embeddings = build_index(docs)
-print("Notes indexed and ready!")
+# --- System prompt ---
+SYSTEM_PROMPT = """
+You are a professional patch-note writer.
+Rules:
+- ONLY write patch notes using the user-provided changes.
+- DO NOT add any categories or sections that do not have changes.
+- MUST categorize every bullet exactly under the correct section (Security, UI, Bug Fixes, Features).
+- Expand each bullet into 1–2 sentences if needed, but do not invent new features, bug fixes, or security items.
+- Expand each bullet point into 1–2 sub-bullet point sentences.
+- DO NOT add any closing statements, greetings, or extra commentary. Only list the categorized changes as bullets and sub-bullets, then stop.
+- Use previous notes only to match formatting and style, NEVER content.
+- Use only '*' for bullets.
+- Include version at the top: Version: vYYYY.MM.DD
+- Do NOT hallucinate dates, versions, emojis, or extra sections.
+"""
 
-def is_unsafe_input(q: str):
-    q_lower = q.lower()
-    if len(q_lower) > 300:
-        return "Input too long. Please shorten your query to under 300 characters."
-    if "ignore previous" in q_lower or "disregard previous" in q_lower:
-        return "Unsafe input detected. Please rephrase your query."
-    return None
+# --- Token limit settings ---
+MAX_MODEL_TOKENS = 1500
+MAX_RAG_TOKENS = 400
+MAX_USER_TOKENS = MAX_MODEL_TOKENS - MAX_RAG_TOKENS
+MAX_USER_CHARS = MAX_USER_TOKENS * 4
 
-def log_request(question, latency, pathway):
-    with open("telemetry.log", "a", encoding="utf-8") as f:
-        f.write(json.dumps({
-            "timestamp": time.time(),
-            "pathway": pathway,
-            "question": question,
-            "latency": latency
-        }) + "\n")
+# --- Helper: categorize user input ---
+def categorize_changes(user_text):
+    categories = {"Security": [], "UI": [], "Bug Fixes": [], "Features": []}
+    for line in user_text.split("\n"):
+        line = line.strip()
+        if not line:
+            continue
+        content = line[2:].strip() if line.startswith("- ") else line
+        content_lower = content.lower()
+        if any(k in content_lower for k in ["security", "auth"]):
+            categories["Security"].append(content)
+        elif any(k in content_lower for k in ["ui", "interface", "dark mode", "theme"]):
+            categories["UI"].append(content)
+        elif any(k in content_lower for k in ["bug", "fix", "error", "crash"]):
+            categories["Bug Fixes"].append(content)
+        else:
+            categories["Features"].append(content)
+    # Remove empty categories
+    return {cat: items for cat, items in categories.items() if items}
 
-def call_ollama(prompt):
-    result = subprocess.run(
-        ["ollama", "run", MODEL_NAME],
-        input=prompt.encode("utf-8"),
-        stdout=subprocess.PIPE
-    )
-    return result.stdout.decode("utf-8")
+# --- Generate patch notes ---
+def generate_patch_notes(user_text, version_tag, notes_for_rag):
+    # --- Retrieve relevant previous notes dynamically ---
+    previous_notes_for_rag = get_relevant_notes(user_text, k=3)
+    context_text = "\n".join(previous_notes_for_rag) if previous_notes_for_rag else ""
 
-@app.route("/ask", methods=["POST"])
-def ask():
-    start = time.time()
-    q = request.json.get("question", "").strip()
-    guard = is_unsafe_input(q)
-    if guard:
-        return jsonify({"error": guard})
-    
-    results = search_index(q, index, docs, sources)
-    context = "\n\n".join([r[0]] for r in results)
+    # --- Categorize user changes ---
+    categories = categorize_changes(user_text)
+    category_summary = "\n".join([f"{cat}: {', '.join(lines)}" for cat, lines in categories.items()])
 
-    system_prompt = (
-        "You are a helpful study assistant. "
-        "Only answer using the provided notes. "
-        "If unsure, say 'I am not sure, please check notes'"
-    )
+    # --- Token limit check ---
+    total_input_tokens = estimate_tokens(user_text) + estimate_tokens(context_text) + estimate_tokens(category_summary)
+    if total_input_tokens > MAX_MODEL_TOKENS - 50:
+        raise ValueError(f"Input too long! Approx max {MAX_USER_CHARS} characters allowed.")
 
-    full_prompt = f"{system_prompt}\n\nNOTES:\n{context}\n\nQUESTION: {q}\nANSWER:"
-    answer = call_ollama(full_prompt)
+    # --- LLM payload ---
+    prompt = f"""{SYSTEM_PROMPT}
 
-    latency = round(time.time() - start, 2)
-    log_request(q, latency, "RAG")
+Previous notes for style guidance (DO NOT copy content):
+{context_text}
 
-    return jsonify({"answer": answer.strip(), "latency": latency})
+Suggested categories based on input changes:
+{category_summary}
 
-@app.route("/")
-def home():
-    return """<h2> Study Buddy</h2>
-    <p>POST /ask with {"question": "your question"} to get answers based on your notes.</p>"""
+Version: {version_tag}
+Changes:
+{user_text}
+
+Patch Notes:"""
+
+    payload = {
+        "model": OLLAMA_MODEL,
+        "prompt": prompt,
+        "temperature": 0.2,
+        "max_tokens": MAX_MODEL_TOKENS
+    }
+
+    start_time = time.time()
+    response = requests.post(f"{OLLAMA_API_URL}/v1/completions", json=payload)
+    latency = time.time() - start_time
+
+    if response.status_code != 200:
+        raise RuntimeError(f"LLM error: {response.status_code} {response.text}")
+
+    result = response.json()
+    patch_notes = ""
+    if "completion" in result:
+        patch_notes = result["completion"].strip()
+    elif "choices" in result and len(result["choices"]) > 0:
+        patch_notes = result["choices"][0].get("text", "").strip()
+
+    if not patch_notes:
+        raise RuntimeError("LLM returned empty completion")
+
+    # --- Telemetry ---
+    user_tokens = estimate_tokens(user_text)
+    response_tokens = estimate_tokens(patch_notes)
+    total_tokens = user_tokens + response_tokens
+    log_telemetry(user_text, pathway="RAG" if previous_notes_for_rag else "tool", latency=latency, tokens=total_tokens)
+
+    # --- Append previous notes at bottom ---
+    previous_notes_text = "\n\n--- Previous Patch Notes ---\n" + "\n".join(notes_for_rag) if notes_for_rag else ""
+    final_patch_notes = patch_notes + previous_notes_text
+
+    return final_patch_notes
+
+# --- Routes ---
+@app.route("/", methods=["GET"])
+def index():
+    return render_template("index.html")
+
+@app.route("/generate", methods=["POST"])
+def generate():
+    try:
+        text = request.form.get("changes", "")
+        check_input(text)
+        version_tag = get_version_tag()
+
+        # --- Load existing notes ---
+        patch_file = "data/patch_notes.json"
+        try:
+            with open(patch_file, "r") as f:
+                notes = json.load(f)
+        except FileNotFoundError:
+            notes = []
+
+        # --- Prepare note entry for JSON storage ---
+        summary_bullets = [line[2:].strip() for line in text.split("\n") if line.startswith("- ")]
+        summary_text = "; ".join(summary_bullets)
+        version_entry = f"{version_tag}: {summary_text}"
+
+        # --- Generate patch notes, pass full history for previous notes section ---
+        patch_notes = generate_patch_notes(text, version_tag, notes)
+
+        # --- Append new note AFTER generating patch notes ---
+        notes.append(version_entry)
+        with open(patch_file, "w") as f:
+            json.dump(notes, f, indent=2)
+
+        return jsonify({"patch_notes": patch_notes, "version": version_tag})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
 if __name__ == "__main__":
-    app.run(port=5000, debug=True)
+    app.run(debug=True)

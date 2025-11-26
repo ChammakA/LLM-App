@@ -1,7 +1,0 @@
-[
-    {"input": "What is quantum entanglement?", "expected": "two"},
-    {"input": "Define supervised learning.", "expected": "label"},
-    {"input": "Explain unsupervised learning.", "expected": "unlabel"},
-    {"input": "What is reinforcement learning?", "expected": "reward"},
-    {"input": "What are qubits?", "expected": "state"}
-]

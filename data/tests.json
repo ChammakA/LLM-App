@@ -1,0 +1,62 @@
+[
+  {
+    "input": "- Fix login bug\n- Add search feature",
+    "expected_patterns": ["login bug", "search feature", "Version: v", "Bug Fixes", "Features"]
+  },
+  {
+    "input": "- Improve dashboard performance",
+    "expected_patterns": ["dashboard performance", "Version: v", "Features"]
+  },
+  {
+    "input": "- Add dark mode",
+    "expected_patterns": ["dark mode", "Version: v", "UI"]
+  },
+  {
+    "input": "- Patched security vulnerability",
+    "expected_patterns": ["security vulnerability", "Version: v", "Security"]
+  },
+  {
+    "input": "- Revamped user interface",
+    "expected_patterns": ["user interface", "Version: v", "UI"]
+  },
+  {
+    "input": "- Fixed crash on settings page",
+    "expected_patterns": ["crash on settings page", "Version: v", "Bug Fixes"]
+  },
+  {
+    "input": "- Optimize search algorithm",
+    "expected_patterns": ["search algorithm", "Version: v", "Features"]
+  },
+  {
+    "input": "- Added new onboarding flow",
+    "expected_patterns": ["onboarding flow", "Version: v", "Features"]
+  },
+  {
+    "input": "- Improved accessibility",
+    "expected_patterns": ["accessibility", "Version: v", "Features"]
+  },
+  {
+    "input": "- Updated documentation",
+    "expected_patterns": ["documentation", "Version: v", "Features"]
+  },
+  {
+    "input": "- Fixed payment gateway bug",
+    "expected_patterns": ["payment gateway bug", "Version: v", "Bug Fixes"]
+  },
+  {
+    "input": "- Added notifications panel",
+    "expected_patterns": ["notifications panel", "Version: v", "Features"]
+  },
+  {
+    "input": "- Minor UI tweaks",
+    "expected_patterns": ["UI tweaks", "Version: v", "UI"]
+  },
+  {
+    "input": "- Patched authentication bug",
+    "expected_patterns": ["authentication bug", "Version: v", "Security", "Bug Fixes"]
+  },
+  {
+    "input": "- Improve mobile responsiveness\n- Minor bug fixes",
+    "expected_patterns": ["mobile responsiveness", "Minor bug fixes", "Version: v", "UI", "Bug Fixes", "Features"]
+  }
+]

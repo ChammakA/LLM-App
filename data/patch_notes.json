@@ -1,0 +1,5 @@
+[
+  "v2025.11.20: Fixed login bug; improved dashboard performance",
+  "v2025.11.21: Added search autocomplete; minor UI tweaks",
+  "v2025.11.22: Patched security vulnerability in auth module"
+]
