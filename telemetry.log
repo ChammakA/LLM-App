@@ -1,0 +1,4 @@
+{"timestamp": "2025-11-26T21:58:33.178000", "pathway": "RAG", "latency": 22.634528398513794, "input_length": 55, "tokens": 41}
+{"timestamp": "2025-11-26T22:00:41.697796", "pathway": "RAG", "latency": 9.381572723388672, "input_length": 56, "tokens": 87}
+{"timestamp": "2025-11-26T22:01:27.409798", "pathway": "RAG", "latency": 9.17177700996399, "input_length": 56, "tokens": 87}
+{"timestamp": "2025-11-26T22:03:00.233623", "pathway": "RAG", "latency": 8.300445079803467, "input_length": 56, "tokens": 70}
