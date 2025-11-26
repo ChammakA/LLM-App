@@ -1,5 +1,3 @@
-    
-````markdown
 # Patch Note Writer (LLM + RAG)
 
 ## Overview
