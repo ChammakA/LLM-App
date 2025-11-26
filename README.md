@@ -59,7 +59,7 @@ Generates `data/test_results.json` with pass/fail results.
 
 ---
 
-## ** Optional fixes for test failures**
+## Optional fixes for test failures
 
 - **Test 9, 14, 15** fail mostly due to:
   - Rephrasing in Features or UI sections.
