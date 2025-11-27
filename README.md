@@ -4,6 +4,10 @@
 This is a small web app that converts user-submitted bullet points into professional patch notes using an LLM.  
 It also uses RAG (TF-IDF over previous patch notes) to maintain style consistency.
 
+## Presentation Video
+
+[YouTube Presentaion Video](https://youtu.be/uhkCJMCxIwg)
+
 ## Features
 - Categorizes changes: Security, UI, Bug Fixes, Features.
 - Adds version numbers automatically (`vYYYY.MM.DD`).
@@ -33,6 +37,7 @@ pip install -r requirements.txt
 
 ```text
 data/patch_notes.json  # Already included
+data/style_examples.json
 ```
 
 ## Running the app
@@ -61,14 +66,7 @@ Generates `data/test_results.json` with pass/fail results.
 
 ## Optional fixes for test failures
 
-- **Test 9, 14, 15** fail mostly due to:
+- **Test 14, 15** fail mostly due to:
   - Rephrasing in Features or UI sections.
   - Multi-category bullets not appearing in both sections.
-
-**Quick fix:** Make your test patterns regex-friendly or allow partial match:
-```
-"expected_patterns": ["accessibility", "Version: v", "Features"]
-
-→ will match even if LLM says “Improved accessibility for users…”.
-```
 
