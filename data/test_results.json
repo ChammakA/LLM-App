@@ -2,7 +2,7 @@
   {
     "test_number": 1,
     "input": "- Fix login bug\n- Add search feature",
-    "output": "Version: vTEST\n\nBug Fixes:\n\n* Fix login bug\n\nFeatures:\n\n* Add search feature",
+    "output": "Version: vTEST\n\nBug Fixes:\n\n* Fix login bug (1)\n\t+ This fix resolves issues preventing users from accessing their accounts.\n\nFeatures:\n\n* Add search feature (2)",
     "expected_patterns": [
       "login bug",
       "search feature",
@@ -16,7 +16,7 @@
   {
     "test_number": 2,
     "input": "- Improve dashboard performance",
-    "output": "Version: vTEST\n\n* Features: Improve dashboard performance",
+    "output": "Version: vTEST\n\nBug Fixes:\n\n* Fixed login bug (resolves issues preventing users from accessing their accounts)\n\nFeatures:\n\n* Improved dashboard performance (enhanced loading times and responsiveness for a better user experience)",
     "expected_patterns": [
       "dashboard performance",
       "Version: v",
@@ -28,7 +28,7 @@
   {
     "test_number": 3,
     "input": "- Add dark mode",
-    "output": "Version: vYYYY.MM.DD\n\nUI: Add dark mode*\n\nChanges:\n- Add dark mode (#10246)",
+    "output": "Version: vYYYY.MM.DD\n\nUI: Add dark mode*\n\nChanges:\n- Add dark mode, allowing users to switch between light and dark modes for improved readability and aesthetics.",
     "expected_patterns": [
       "dark mode",
       "Version: v",
@@ -40,7 +40,7 @@
   {
     "test_number": 4,
     "input": "- Patched security vulnerability",
-    "output": "Version: vTEST\n\nSecurity:\n* Patched security vulnerability in auth module",
+    "output": "Version: vTEST\n\nSecurity:\n* Patched security vulnerability (1)\n    - Eliminated an issue that could allow unauthorized access. (2)",
     "expected_patterns": [
       "security vulnerability",
       "Version: v",
@@ -52,7 +52,7 @@
   {
     "test_number": 5,
     "input": "- Revamped user interface",
-    "output": "Version: vYYYY.MM.DD\n\nUI: Revamped user interface\n\n* Improved navigation menu with collapsible sections for easier access to features and settings\n* New layout for dashboard and home screen, with more prominent display of important metrics and quick actions\n* Enhanced widgets system with customizable templates and new animations\n* Redesigned login and registration screens with modernized styles and improved user experience\n* Refactored account management system with easier access to settings and preferences\n* Improved search function with more filters and suggestions for relevant content\n\nSecurity:\n\n* Enhanced password hashing algorithm for increased security\n* Implemented two-factor authentication for added protection\n\nBug Fixes:\n\n* Fixed issue with incorrect data display in certain charts and graphs\n* Resolved problem with slow loading times on high-traffic pages\n* Addressed compatibility issues with older browsers\n\nFeatures:\n\n* New feature to allow users to create and share custom dashboards\n* Improved support for multiple languages with updated translation files\n* Enhanced user profiles with additional information and customization options",
+    "output": "Version: vTEST\n\nUI: Revamped user interface\n\n* Improved layout and design for a more modern and intuitive experience.\n\t+ Refined spacing and typography for improved readability and visual appeal.\n\t+ Enhanced color scheme to create a more cohesive and visually appealing interface.",
     "expected_patterns": [
       "user interface",
       "Version: v",
@@ -64,7 +64,7 @@
   {
     "test_number": 6,
     "input": "- Fixed crash on settings page",
-    "output": "Version: vTEST\n\nBug Fixes:\n\n* Fixed crash on settings page",
+    "output": "Version: vTEST\n\nBug Fixes:\n\n* Fixed crash on settings page\n\t+ Resolved issue preventing users from accessing settings page.",
     "expected_patterns": [
       "crash on settings page",
       "Version: v",
@@ -76,7 +76,7 @@
   {
     "test_number": 7,
     "input": "- Optimize search algorithm",
-    "output": "Version: vTEST\n\nChanges:\n\n* Optimize search algorithm (Features)",
+    "output": "Version: vTEST\n\nFeatures:\n\n* Optimize search algorithm: Improved search functionality by optimizing the algorithm to provide faster and more accurate results.\nUI: No changes.\n\nNote: The previous version's features and UI remain unchanged.",
     "expected_patterns": [
       "search algorithm",
       "Version: v",
@@ -88,7 +88,7 @@
   {
     "test_number": 8,
     "input": "- Added new onboarding flow",
-    "output": "Version: vTEST\n\nFeatures:\n\n* Added a new onboarding flow to improve user experience.",
+    "output": "Version: vTEST\n\nFeatures:\n\n* New onboarding flow\n\t+ Provides a more intuitive and user-friendly experience for new users.\nUI:\n\n* Minor tweaks to improve readability and spacing.",
     "expected_patterns": [
       "onboarding flow",
       "Version: v",
@@ -100,21 +100,19 @@
   {
     "test_number": 9,
     "input": "- Improved accessibility",
-    "output": "Version: vTEST\n\nChanges:\n\n* Improved accessibility:\n\t+ Added alt text to all images, making the platform more accessible for users with visual impairments.\n\t+ Increased font sizes and contrast on the dashboard for easier readability.",
+    "output": "Version: vTEST\n\nFeatures:\n\n* Improved accessibility (1)\n\t+ Enhanced keyboard navigation and screen reader compatibility for better usability.\n\nUI: No changes.\n\nBug Fixes: No changes.\n\nSecurity: No changes.",
     "expected_patterns": [
       "accessibility",
       "Version: v",
       "Features"
     ],
-    "missing_patterns": [
-      "Features"
-    ],
-    "passed": false
+    "missing_patterns": [],
+    "passed": true
   },
   {
     "test_number": 10,
     "input": "- Updated documentation",
-    "output": "Version: vYYYY.MM.DD\n\nChanges:\n\nSecurity:\n\n* Fix for vulnerability in login system (CVE-2023-1234)\n\nUI:\n\n* Improved navigation menu for easier access to features\n\nBug Fixes:\n\n* Crashing issue with certain third-party plugins resolved\n\nFeatures:\n\n* Updated documentation for improved user experience",
+    "output": "Version: vYYYY.MM.DD\n\nChanges:\n\nSecurity:\n\n* Fix for vulnerability in login system (CVE-2023-1234)\n\nUI:\n\n* Improved navigation menu for easier access to features\n\nBug Fixes:\n\n* Crashing issue with certain third-party integrations resolved\n\nFeatures:\n\n* Updated documentation for improved user experience",
     "expected_patterns": [
       "documentation",
       "Version: v",
@@ -126,7 +124,7 @@
   {
     "test_number": 11,
     "input": "- Fixed payment gateway bug",
-    "output": "Version: vTEST\n\nBug Fixes:\n\n* Fixed payment gateway bug",
+    "output": "Version: vTEST\n\nBug Fixes:\n\n* Fixed payment gateway bug (resolves issues with payment processing)",
     "expected_patterns": [
       "payment gateway bug",
       "Version: v",
@@ -138,7 +136,7 @@
   {
     "test_number": 12,
     "input": "- Added notifications panel",
-    "output": "Version: vTEST\n\nChanges:\n\n* Features: Added notifications panel",
+    "output": "Version: vTEST\n\nFeatures:\n\n* Added notifications panel\n\t+ Provides a centralized location for viewing and managing alerts and messages.\n\nUI:\n\n* Minor UI tweaks\n\t+ Refined spacing and improved color balance for readability.",
     "expected_patterns": [
       "notifications panel",
       "Version: v",
@@ -150,7 +148,7 @@
   {
     "test_number": 13,
     "input": "- Minor UI tweaks",
-    "output": "Version: vTEST\n\nUI: Minor UI tweaks",
+    "output": "Version: vTEST\n\nUI: Minor UI tweaks\n\n* Refined spacing and improved color balance for readability.",
     "expected_patterns": [
       "UI tweaks",
       "Version: v",
@@ -162,7 +160,7 @@
   {
     "test_number": 14,
     "input": "- Patched authentication bug",
-    "output": "Version: vTEST\n\nSecurity:\n\n* Patched authentication bug",
+    "output": "Version: vTEST\n\nSecurity:\n* Patched authentication bug\n    - Eliminated an issue that could allow unauthorized access.",
     "expected_patterns": [
       "authentication bug",
       "Version: v",
@@ -177,7 +175,7 @@
   {
     "test_number": 15,
     "input": "- Improve mobile responsiveness\n- Minor bug fixes",
-    "output": "Version: vTEST\n\nBug Fixes:\n\n* Fixed minor bugs in the login process to improve user experience.\n\nFeatures:\n\n* Improved mobile responsiveness for a better user interface on smaller screens.",
+    "output": "Version: vTEST\n\nBug Fixes:\n\n* Fixed minor bugs to improve overall user experience.\n\nFeatures:\n\n* Enhanced mobile responsiveness for improved usability on handheld devices.",
     "expected_patterns": [
       "mobile responsiveness",
       "Minor bug fixes",

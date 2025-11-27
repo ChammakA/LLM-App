@@ -18,20 +18,6 @@ SYSTEM_PROMPT = """
 You are a professional patch-note writer.
 Rules:
 - ONLY write patch notes using the user-provided changes.
-- Example (DO NOT INCLUDE IN OUTPUT):
-    <<<EXAMPLE>>>
-    user input:
-    - Fixed login bug
-    - Improved dashboard performance
-
-    model output (for illustration only):
-    Version: vYYYY.MM.DD
-    Bug Fixes:
-    * Fixed login bug
-        - This fix resolves issues preventing users from accessing their accounts.
-    * Improved dashboard performance
-        - Enhanced loading times and responsiveness for a better user experience.
-    <<<END EXAMPLE>>>
 - DO NOT add any categories or sections that do not have changes.
 - MUST categorize every bullet exactly under the correct section (Security, UI, Bug Fixes, Features).
 - Expand each bullet into 1–2 sentences if needed, but do not invent new features, bug fixes, or security items.
@@ -70,7 +56,7 @@ def categorize_changes(user_text):
     return {cat: items for cat, items in categories.items() if items}
 
 # --- Generate patch notes ---
-def generate_patch_notes(user_text, version_tag, notes_for_rag):
+def generate_patch_notes(user_text, version_tag, history_notes):
     # --- Retrieve relevant previous notes dynamically ---
     previous_notes_for_rag = get_relevant_notes(user_text, k=3)
     context_text = "\n".join(previous_notes_for_rag) if previous_notes_for_rag else ""
@@ -114,7 +100,7 @@ Patch Notes:"""
         raise RuntimeError(f"LLM error: {response.status_code} {response.text}")
 
     result = response.json()
-    patch_notes = ""
+
     if "completion" in result:
         patch_notes = result["completion"].strip()
     elif "choices" in result and len(result["choices"]) > 0:
@@ -130,8 +116,8 @@ Patch Notes:"""
     log_telemetry(user_text, pathway="RAG" if previous_notes_for_rag else "tool", latency=latency, tokens=total_tokens)
 
     # --- Append previous notes at bottom ---
-    previous_notes_text = "\n\n--- Previous Patch Notes ---\n" + "\n".join(notes_for_rag) if notes_for_rag else ""
-    final_patch_notes = patch_notes + previous_notes_text
+    history_block = "\n\n--- Previous Patch Notes ---\n" + "\n".join(history_notes) if history_notes else ""
+    final_patch_notes = patch_notes + history_block
 
     return final_patch_notes
 
@@ -155,13 +141,19 @@ def generate():
         except FileNotFoundError:
             notes = []
 
+        style_file = "data/style_examples.json"
+        try:
+            with open(style_file, "r") as f:
+                style_notes = json.load(f)
+        except FileNotFoundError:
+            style_notes = []
+
+        patch_notes = generate_patch_notes(text, version_tag, notes)
+
         # --- Prepare note entry for JSON storage ---
         summary_bullets = [line[2:].strip() for line in text.split("\n") if line.startswith("- ")]
         summary_text = "; ".join(summary_bullets)
         version_entry = f"{version_tag}: {summary_text}"
-
-        # --- Generate patch notes, pass full history for previous notes section ---
-        patch_notes = generate_patch_notes(text, version_tag, notes)
 
         # --- Append new note AFTER generating patch notes ---
         notes.append(version_entry)

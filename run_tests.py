@@ -11,7 +11,7 @@ passed_count = 0
 
 for i, t in enumerate(TESTS, start=1):
     # Generate patch notes with a fixed version for testing
-    output = generate_patch_notes(t["input"], "vTEST", notes_for_rag=[])
+    output = generate_patch_notes(t["input"], "vTEST", history_notes=[])
     
     # Check expected patterns using substring/regex match
     missing = [p for p in t["expected_patterns"] if not re.search(re.escape(p), output, re.IGNORECASE)]
