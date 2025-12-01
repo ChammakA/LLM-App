@@ -6,7 +6,7 @@ It also uses RAG (TF-IDF over previous patch notes) to maintain style consistenc
 
 ## Presentation Video
 
-[YouTube Presentaion Video](https://youtu.be/uhkCJMCxIwg)
+[YouTube Presentaion Video](https://youtu.be/F7YPTNyQ6qI)
 
 ## Features
 - Categorizes changes: Security, UI, Bug Fixes, Features.
